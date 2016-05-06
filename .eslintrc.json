@@ -1,0 +1,15 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true,
+    "es6": true
+  },
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
+  "rules": {
+    "indent": ["error", 2],
+    "semi": ["error", "never"],
+    "comma-dangle": ["error", "always-multiline"],
+    "semi": ["error", "never"]
+  }
+}
