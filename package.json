@@ -1,7 +1,7 @@
 {
   "name": "graph-quill",
   "version": "0.1.0",
-  "description": "Natural GraphQL annotations on existing classes",
+  "description": "GraphQL Schema creation Sugar",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha --compilers js:babel-register",

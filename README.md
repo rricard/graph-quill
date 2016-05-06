@@ -1,5 +1,11 @@
 # GraphQuill
 
+GraphQL Schema creation Sugar
+
+[![Build Status](https://travis-ci.com/rricard/graph-quill.svg?token=2g9rnBV6ArnPHqPzyhwo&branch=master)](https://travis-ci.com/rricard/graph-quill) [![Code Climate](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/gpa.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/feed) [![Test Coverage](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/coverage.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/coverage) [![Issue Count](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/issue_count.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/feed)
+
+---
+
 GraphQuill is a tool based on the [GraphQL reference implementation][graphql-js]
 which goal is to help write [GraphQL][graphql] servers compliant with the
 [GraphQL Relay Specification][graphql-relay-spec].
