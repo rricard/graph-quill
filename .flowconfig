@@ -3,3 +3,6 @@ flow/definitions
 
 [ignore]
 .*\.json
+
+[options]
+esproposal.class_instance_fields=enable
