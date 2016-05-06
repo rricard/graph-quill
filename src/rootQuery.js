@@ -1,29 +1,10 @@
 /* @flow */
 
-import {
-  GraphQLSchema,
-} from "graphql"
-
-import type {
-  GraphQLType,
-} from "graphql"
-
 import type {
   GraphQuillType,
   GraphQuillArg,
 } from "./type"
 
-type GraphQLArg = {
-  description?: string,
-  type: GraphQLType,
-}
-
-type GraphQLField = {
-  description?: string,
-  type: GraphQLType,
-  args?: {[key: string]: GraphQLArg},
-  resolve: (rootValue: mixed, args: {[key: string]: mixed}) => mixed,
-}
 
 export type GraphQuillFieldWithName = {
   name: string,

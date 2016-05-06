@@ -7,6 +7,7 @@ import {
 import {
   globalIdField,
   connectionDefinitions,
+  connectionFromPromisedArray,
 } from "graphql-relay"
 
 import type {
@@ -14,34 +15,43 @@ import type {
   GraphQLInterfaceType,
 } from "graphql"
 
-type GraphQuillTypeBase = {
-  GraphQLType: (nodeInterface: GraphQLInterfaceType) => GraphQLType,
-  GraphQLConnectionType: (type: GraphQLType) => GraphQLType,
+import type {
+  GraphQLArg,
+  GraphQLField,
+} from "./graphql"
+
+type RelayEnhancedClass = {
+  GraphQLType: GraphQLType,
+  GraphQLConnectionType?: GraphQLType,
   resolveById?: (id: mixed) => mixed
 }
 
-export type GraphQuillType = GraphQLType |
-  GraphQuillTypeBase |
-  () => GraphQuillTypeBase
+type GraphQuillEnhancedClass = {
+  GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass,
+}
 
-export type GraphQuillArg = {
-  type: GraphQuillType,
+type GraphQuillAnyType = GraphQLType | GraphQuillEnhancedClass
+
+type GraphQuillClosuredAnyType = GraphQuillAnyType | () => GraphQuillAnyType
+
+type GraphQuillArg = {
+  type: GraphQuillClosuredAnyType,
   description?: string
 }
 
-export type GraphQuillField = {
-  type: GraphQuillType,
+type GraphQuillField = {
+  type: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}
 }
 
-export type GraphQuillConnection = {
-  connectedType: GraphQuillType,
+type GraphQuillConnection = {
+  connectedType: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}
 }
 
-export type GraphQuillTypeInformation = {
+type GraphQuillTypeInformation = {
   name: string,
   description?: string,
   idField?: string,
@@ -50,14 +60,17 @@ export type GraphQuillTypeInformation = {
   interfaces?: Array<GraphQLInterfaceType>,
 }
 
-function argMapping(args: {[key: string]: GraphQuillArg}) {
+function argMapping(
+  args: {[key: string]: GraphQuillArg},
+  nodeInterface: GraphQLInterfaceType
+): {[key: string]: GraphQLArg} {
   return Object.keys(args).map(k => {
     const arg = args[k]
     const baseType = typeof arg.type === "function" && !arg.type.prototype ?
       arg.type() :
       arg.type
     const type = baseType.GraphQuill ?
-      baseType.GraphQLType || baseType.GraphQuill().GraphQLType :
+      baseType.GraphQLType || baseType.GraphQuill(nodeInterface).GraphQLType :
       baseType
     let kv = {}
     kv[k] = {
@@ -68,7 +81,10 @@ function argMapping(args: {[key: string]: GraphQuillArg}) {
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
 }
 
-function fieldMapping(fields: {[key: string]: GraphQuillField}) {
+function fieldMapping(
+  fields: {[key: string]: GraphQuillField},
+  nodeInterface: GraphQLInterfaceType
+): {[key: string]: GraphQLField} {
   return Object.keys(fields).map(k => {
     const field = fields[k]
     const baseType =
@@ -76,19 +92,24 @@ function fieldMapping(fields: {[key: string]: GraphQuillField}) {
       field.type() :
       field.type
     const type = baseType.GraphQuill ?
-      baseType.GraphQLType || baseType.GraphQuill().GraphQLType :
+      baseType.GraphQLType || baseType.GraphQuill(nodeInterface).GraphQLType :
       baseType
     let kv = {}
     kv[k] = {
-      type,
+      type: type,
       description: field.description,
       args: field.args ? argMapping(field.args) : undefined,
+      resolve: (obj, args, context, info) =>
+        obj[k](args, context, info),
     }
     return kv
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
 }
 
-function connMapping(fields: {[key: string]: GraphQuillConnection}) {
+function connMapping(
+  fields: {[key: string]: GraphQuillConnection},
+  nodeInterface: GraphQLInterfaceType
+): {[key: string]: GraphQLField} {
   return Object.keys(fields).map(k => {
     const field = fields[k]
     const baseConnectedType =
@@ -97,12 +118,16 @@ function connMapping(fields: {[key: string]: GraphQuillConnection}) {
       field.connectedType() :
       field.connectedType
     const connectedType = baseConnectedType.GraphQLType ||
-      baseConnectedType.GraphQuill().GraphQLConnectionType
+      baseConnectedType.GraphQuill(nodeInterface).GraphQLConnectionType
     let kv = {}
     kv[k] = {
       type: connectedType,
       description: field.description,
       args: field.args ? argMapping(field.args) : undefined,
+      resolve: (obj, args, context, info) =>
+        connectionFromPromisedArray(Promise.resolve(
+          obj[k](args, context, info)
+        ), args),
     }
     return kv
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
@@ -119,18 +144,21 @@ export function createType(
   }: GraphQuillTypeInformation,
   fields: {[key: string]: GraphQuillField},
   connections?: {[key: string]: GraphQuillConnection}
-): Object {
+): GraphQuillEnhancedClass {
   return Object.assign(wrappedClass, {
     GraphQuill: nodeInterface => {
       const type = new GraphQLObjectType({
         name,
         description,
-        fields: () => Object.assign({
-          id: idField && resolveById ? globalIdField(name) : undefined,
-        }, fieldMapping(fields), connMapping(connections || {})),
+        fields: () => Object.assign({},
+          {id: idField && resolveById ? globalIdField(name) : undefined},
+          fieldMapping(fields, nodeInterface),
+          connMapping(connections || {}, nodeInterface)
+        ),
         interfaces: [].concat(interfaces || [], idField && resolveById ?
           [nodeInterface] :
-          []),
+          []
+        ),
       })
       return Object.assign(wrappedClass, {
         GraphQLType: type,
