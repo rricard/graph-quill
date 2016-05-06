@@ -109,7 +109,7 @@ function connMapping(fields: {[key: string]: GraphQuillConnection}) {
 }
 
 export function createType(
-  wrappedClass: Class<Object>,
+  wrappedClass: Object,
   {
     name,
     description,
@@ -119,7 +119,7 @@ export function createType(
   }: GraphQuillTypeInformation,
   fields: {[key: string]: GraphQuillField},
   connections?: {[key: string]: GraphQuillConnection}
-): Class<Object> {
+): Object {
   return Object.assign(wrappedClass, {
     GraphQuill: nodeInterface => {
       const type = new GraphQLObjectType({
@@ -139,6 +139,6 @@ export function createType(
           undefined,
         resolveById,
       })
-    }
+    },
   })
 }

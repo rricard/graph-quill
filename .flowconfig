@@ -2,7 +2,7 @@
 flow/definitions
 
 [ignore]
-.*\.json
+.*duplicate-keys\.json
 
 [options]
 esproposal.class_instance_fields=enable

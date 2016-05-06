@@ -1,10 +1,10 @@
 /* @flow */
 
 import {
-  GraphQLString
+  GraphQLString,
 } from "graphql"
 
-import GraphQuill from "../../src";
+import GraphQuill from "../../src"
 
 class BlogItem {
   constructor(fields?: {[key: string]: mixed}) {
@@ -26,7 +26,7 @@ class Post extends BlogItem {
   }
 }
 
-Post = GraphQuill.createType(Post, {
+GraphQuill.createType(Post, {
   name: "Post",
   description: "An authored blog post",
   idField: "id",
@@ -47,7 +47,7 @@ Post = GraphQuill.createType(Post, {
   author: {
     type: () => Author,
     description: "Post's author",
-  }
+  },
 })
 
 const posts = [
@@ -65,45 +65,45 @@ class Author extends BlogItem {
   }
 }
 
-Author = GraphQuill.createType(Author, {
+GraphQuill.createType(Author, {
   name: "Author",
   description: "A creator of content",
-  idField: "id"
+  idField: "id",
 }, {
   name: {
     type: GraphQLString,
-    description: "Author's name"
+    description: "Author's name",
   },
 }, {
   posts: {
     connectedType: () => Post,
-    description: "Author's own posts"
-  }
+    description: "Author's own posts",
+  },
 })
 
 const authors = [
   new Author(),
-  new Author({id: 1, name: "Robin"})
+  new Author({id: 1, name: "Robin"}),
 ]
 
 function me({userId}) {
   return authors[userId]
 }
 
-me = GraphQuill.createRootQueryField(me, {
+GraphQuill.createRootQueryField(me, {
   name: "me",
   description: "Get the currently connected user",
-  type: () => Author
+  type: () => Author,
 })
 
 function allPosts() {
-  return posts;
+  return posts
 }
 
-allPosts = GraphQuill.createRootQueryConnection(allPosts, {
+GraphQuill.createRootQueryConnection(allPosts, {
   name: "allPosts",
   description: "Get all of the connected posts",
-  connectedType: () => Post
+  connectedType: () => Post,
 })
 
 export default GraphQuill.createSchema([
