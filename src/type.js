@@ -26,7 +26,7 @@ type RelayEnhancedClass = {
   resolveById?: (id: mixed) => mixed
 }
 
-type GraphQuillEnhancedClass = {
+export type GraphQuillEnhancedClass = {
   GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass,
 }
 
@@ -145,7 +145,7 @@ export function createType(
   fields: {[key: string]: GraphQuillField},
   connections?: {[key: string]: GraphQuillConnection}
 ): GraphQuillEnhancedClass {
-  return Object.assign(wrappedClass, {
+  wrappedClass.prototype = Object.assign(wrappedClass.prototype, {
     GraphQuill: nodeInterface => {
       const type = new GraphQLObjectType({
         name,
@@ -160,13 +160,15 @@ export function createType(
           []
         ),
       })
-      return Object.assign(wrappedClass, {
+      wrappedClass.prototype = Object.assign(wrappedClass.prototype, {
         GraphQLType: type,
         GraphQLConnectionType: idField && resolveById ?
           connectionDefinitions({nodeType: type}).connectedType :
           undefined,
         resolveById,
       })
+      return wrappedClass
     },
   })
+  return wrappedClass
 }
