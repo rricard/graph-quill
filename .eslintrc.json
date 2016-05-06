@@ -7,9 +7,9 @@
   "parser": "babel-eslint",
   "extends": "eslint:recommended",
   "rules": {
-    "indent": ["error", 2],
-    "semi": ["error", "never"],
-    "comma-dangle": ["error", "always-multiline"],
-    "semi": ["error", "never"]
+    "indent": [2, 2],
+    "semi": [2, "never"],
+    "comma-dangle": [2, "always-multiline"],
+    "semi": [2, "never"]
   }
 }
