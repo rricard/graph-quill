@@ -30,22 +30,22 @@ type GraphQuillEnhancedClass = {
   GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass,
 }
 
-type GraphQuillAnyType = GraphQLType | GraphQuillEnhancedClass
+export type GraphQuillAnyType = GraphQLType | GraphQuillEnhancedClass
 
-type GraphQuillClosuredAnyType = GraphQuillAnyType | () => GraphQuillAnyType
+export type GraphQuillClosuredAnyType = GraphQuillAnyType | () => GraphQuillAnyType
 
-type GraphQuillArg = {
+export type GraphQuillArg = {
   type: GraphQuillClosuredAnyType,
   description?: string
 }
 
-type GraphQuillField = {
+export type GraphQuillField = {
   type: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}
 }
 
-type GraphQuillConnection = {
+export type GraphQuillConnection = {
   connectedType: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}

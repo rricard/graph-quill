@@ -1,20 +1,21 @@
 /* @flow */
 
 import type {
-  GraphQuillType,
+  GraphQuillClosuredAnyType,
   GraphQuillArg,
 } from "./type"
 
 
 export type GraphQuillFieldWithName = {
   name: string,
-  type: GraphQuillType,
+  type: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}
 }
 
 export type GraphQuillConnectionWithName = {
-  connectedType: GraphQuillType,
+  name: string,
+  connectedType: GraphQuillClosuredAnyType,
   description?: string,
   args?: {[key: string]: GraphQuillArg}
 }
