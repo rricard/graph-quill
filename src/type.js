@@ -6,12 +6,17 @@ import {
 
 import type {
   GraphQLType,
+  GraphQLInterfaceType,
 } from "graphql"
 
+type GraphQuillTypeBase = {
+  GraphQLType: (nodeInterface: GraphQLInterfaceType) => GraphQLType,
+  resolveById?: (id: mixed) => mixed
+}
+
 export type GraphQuillType = GraphQLType |
-  {GraphQuillType: GraphQLType} |
-  () => GraphQLType |
-  () => {GraphQuillType: GraphQLType}
+  GraphQuillTypeBase |
+  () => GraphQuillTypeBase
 
 export type GraphQuillArg = {
   type: GraphQuillType,
@@ -35,6 +40,7 @@ export type GraphQuillTypeInformation = {
   description?: string,
   idField?: string,
   cursorField?: string,
+  resolveById?: (id: mixed) => mixed
 }
 
 export function createType(
@@ -44,6 +50,7 @@ export function createType(
   connections?: {[key: string]: GraphQuillConnection}
 ): Class<Object> {
   return Object.assign({}, wrappedClass, {
-    GraphQuillType: new GraphQLObjectType(),
+    GraphQLType: () => new GraphQLObjectType(),
+    resolveById: typeInfo.resolveById,
   })
 }

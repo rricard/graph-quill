@@ -5,16 +5,24 @@ import {
 } from "graphql"
 
 import type {
+  GraphQLType,
+} from "graphql"
+
+import type {
   GraphQuillType,
   GraphQuillArg,
 } from "./type"
 
-export type GraphQuillRootQueryField = {
-  GraphQuillFieldWithName: GraphQuillFieldWithName
+type GraphQLArg = {
+  description?: string,
+  type: GraphQLType,
 }
 
-export type GraphQuillRootQueryConnection = {
-  GraphQuillConnectionWithName: GraphQuillConnectionWithName
+type GraphQLField = {
+  description?: string,
+  type: GraphQLType,
+  args?: {[key: string]: GraphQLArg},
+  resolve: (rootValue: mixed, args: {[key: string]: mixed}) => mixed,
 }
 
 export type GraphQuillFieldWithName = {
@@ -33,15 +41,15 @@ export type GraphQuillConnectionWithName = {
 export function createRootQueryField(
   wrappedFunc: Function,
   opts: GraphQuillFieldWithName
-): GraphQuillRootQueryField {
-  wrappedFunc.GraphQuillFieldWithName = opts
+): Function {
+  wrappedFunc.GraphQLFields = opts
   return wrappedFunc
 }
 
 export function createRootQueryConnection(
   wrappedFunc: Function,
   opts: GraphQuillConnectionWithName
-): GraphQuillRootQueryField {
-  wrappedFunc.GraphQuillConnectionWithName = opts
+): Function {
+  wrappedFunc.GraphQLFields = opts
   return wrappedFunc
 }
