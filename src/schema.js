@@ -5,11 +5,11 @@ import {
 } from "graphql"
 
 import type {
-  GraphQuillEnhancedClass,
+  IGraphQuillType,
 } from "./type"
 
 export function createSchema(
-  types: Array<GraphQuillEnhancedClass>
+  types: Array<IGraphQuillType>
 ): GraphQLSchema {
   return new GraphQLSchema()
 }

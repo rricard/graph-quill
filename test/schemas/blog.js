@@ -26,7 +26,7 @@ class Post extends BlogItem {
   }
 }
 
-GraphQuill.createType(Post, {
+Post = GraphQuill.createType(Post, {
   name: "Post",
   description: "An authored blog post",
   idField: "id",
@@ -65,7 +65,7 @@ class Author extends BlogItem {
   }
 }
 
-GraphQuill.createType(Author, {
+Author = GraphQuill.createType(Author, {
   name: "Author",
   description: "A creator of content",
   idField: "id",
@@ -90,7 +90,7 @@ function me({userId}) {
   return authors[userId]
 }
 
-GraphQuill.createRootQueryField(me, {
+me = GraphQuill.createRootQueryField(me, {
   name: "me",
   description: "Get the currently connected user",
   type: () => Author,
@@ -100,7 +100,7 @@ function allPosts() {
   return posts
 }
 
-GraphQuill.createRootQueryConnection(allPosts, {
+allPosts = GraphQuill.createRootQueryConnection(allPosts, {
   name: "allPosts",
   description: "Get all of the connected posts",
   connectedType: () => Post,
@@ -109,6 +109,4 @@ GraphQuill.createRootQueryConnection(allPosts, {
 export default GraphQuill.createSchema([
   Post,
   Author,
-  me,
-  allPosts,
 ])

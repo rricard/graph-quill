@@ -26,11 +26,12 @@ type RelayEnhancedClass = {
   resolveById?: (id: mixed) => mixed
 }
 
-export type GraphQuillEnhancedClass = {
-  GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass,
+/* global IGraphQuillType */
+export interface IGraphQuillType {
+  GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass;
 }
 
-export type GraphQuillAnyType = GraphQLType | GraphQuillEnhancedClass
+export type GraphQuillAnyType = GraphQLType | IGraphQuillType
 
 export type GraphQuillClosuredAnyType = GraphQuillAnyType | () => GraphQuillAnyType
 
@@ -133,8 +134,8 @@ function connMapping(
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
 }
 
-export function createType(
-  wrappedClass: Object,
+export function createType<Klass: Object>(
+  wrappedClass: Klass,
   {
     name,
     description,
@@ -144,7 +145,7 @@ export function createType(
   }: GraphQuillTypeInformation,
   fields: {[key: string]: GraphQuillField},
   connections?: {[key: string]: GraphQuillConnection}
-): GraphQuillEnhancedClass {
+): IGraphQuillType & Klass {
   wrappedClass.prototype = Object.assign(wrappedClass.prototype, {
     GraphQuill: nodeInterface => {
       const type = new GraphQLObjectType({

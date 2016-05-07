@@ -10,6 +10,8 @@
     "indent": [2, 2],
     "semi": [2, "never"],
     "comma-dangle": [2, "always-multiline"],
-    "semi": [2, "never"]
+    "semi": [2, "never"],
+    "no-class-assign": [0],
+    "no-func-assign": [0]
   }
 }
