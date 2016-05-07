@@ -20,7 +20,8 @@ import type {
   GraphQLField,
 } from "./graphql"
 
-type RelayEnhancedClass = {
+/* global IRelayEnhancedType */
+interface IRelayEnhancedType {
   GraphQLType: GraphQLType,
   GraphQLConnectionType?: GraphQLType,
   resolveById?: (id: mixed) => mixed
@@ -28,7 +29,7 @@ type RelayEnhancedClass = {
 
 /* global IGraphQuillType */
 export interface IGraphQuillType {
-  GraphQuill: (nodeInterface: GraphQLInterfaceType) => RelayEnhancedClass;
+  GraphQuill: (nodeInterface: GraphQLInterfaceType) => IRelayEnhancedType;
 }
 
 export type GraphQuillAnyType = GraphQLType | IGraphQuillType
