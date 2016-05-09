@@ -14,6 +14,10 @@ import type {
   IGraphQuillType,
 } from "./type"
 
+import type {
+  IGraphQuillRootQuery,
+} from "./rootQuery"
+
 export function createSchema(
   types: Array<IGraphQuillType>,
   rootQueriesAndConns: Array<IGraphQuillRootQuery>
@@ -32,7 +36,7 @@ export function createSchema(
     obj => {
       const matches = expandedTypes.filter(t => obj instanceof t)
       return matches.length > 0 ?
-        matches[0] :
+        matches[0].GraphQLType :
         Promise.reject(new Error(`No matching Relay type for object`))
     }
   )
@@ -57,7 +61,7 @@ export function createSchema(
     description: "Root Query: Graph Entry Point",
     fields: () => Object.assign({
       node: nodeField,
-    }, ...expandedRootQueries.map(exp => exp.GraphQLField)),
+    }, ...expandedRootQueries.map(exp => exp.GraphQLFields)),
   })
   return new GraphQLSchema({
     query: queryType,

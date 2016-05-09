@@ -8,38 +8,53 @@ import BlogSchema from "./schemas/blog"
 
 const assertBlog = createQueryAsserter(BlogSchema, {})
 
-const fragmentsImport = `
-  fragment AuthorSummary on Author {
-    id
-    name
-  }
-
-  fragment PostSummary on Post {
-    id
-    title
-    content
-    author {
-      ...AuthorSummary
-    }
-  }
-`
-
 const postGlobalIds = [0, 1, 2].map(id => toGlobalId("Post", id))
 
 describe("Blog Test Schema", () => {
-  it("should enable direct post retreival via the node root query", () =>
-    assertBlog(`
-      ${fragmentsImport}
+  const authorSummaryFragment = `
+    fragment AuthorSummary on Author {
+      id
+      name
+    }
+  `
+  const postSummaryFragment = `
+    ${authorSummaryFragment}
 
-      query RootNodeArticleQuery($id: ID!) {
+    fragment PostSummary on Post {
+      id
+      title
+      content
+      author {
+        ...AuthorSummary
+      }
+    }
+  `
+
+  describe("node(id: ID!)", () => {
+    const postRetrQuery = `
+      ${postSummaryFragment}
+
+      query PostRetrievalQuery($id: ID!) {
         node(id: $id) {
           ...PostSummary
         }
       }
-    `, {}, {
+    `
+
+    it("should get the first post", () => assertBlog(postRetrQuery, {
+      node: {
+        id: postGlobalIds[0],
+        title: "A post",
+        content: "Hello world!",
+        author: {
+          id: "QXV0aG9yOjA=",
+          name: "Anonymous",
+        },
+      },
+    }, {
       variableValues: {
         id: postGlobalIds[0],
       },
-    })
-  )
+    }))
+  })
 })

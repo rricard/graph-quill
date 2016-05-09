@@ -34,15 +34,15 @@ Post = GraphQuill.createType(Post, {
   resolveById: id => posts.filter(p => p.id == id)[0],
 }, {
   title: {
-    type: () => GraphQLString,
+    type: GraphQLString,
     description: "Post's title",
   },
   content: {
-    type: () => GraphQLString,
+    type: GraphQLString,
     description: "Post's markdown contents",
   },
   creationDate: {
-    type: () => GraphQLString,
+    type: GraphQLString,
     description: "Post's creation date",
   },
   author: {
@@ -54,7 +54,7 @@ Post = GraphQuill.createType(Post, {
 const posts = [
   new Post(),
   new Post({id: 1, authorId: 1, title: "My Post", content: "Robin's post!"}),
-  new Post({id: 1, authorId: 1, title: "My Second Post", content: "Wow!"}),
+  new Post({id: 2, authorId: 1, title: "My Second Post", content: "Wow!"}),
 ]
 
 class Author extends BlogItem {
@@ -73,7 +73,7 @@ Author = GraphQuill.createType(Author, {
   resolveById: id => authors.filter(a => a.id == id)[0],
 }, {
   name: {
-    type: () => GraphQLString,
+    type: GraphQLString,
     description: "Author's name",
   },
 }, {

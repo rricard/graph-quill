@@ -74,7 +74,9 @@ export function fieldMapping(
       description: field.description,
       args: field.args ? argMapping(field.args) : undefined,
       resolve: (obj, args, context, info) =>
-        obj[k](args, context, info),
+        typeof obj[k] === "function" ?
+          obj[k](args, context, info) :
+          obj[k],
     }
     return kv
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
