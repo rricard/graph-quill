@@ -143,13 +143,14 @@ export function createType<Klass: Object>(
   fields: {[key: string]: GraphQuillField},
   connections?: {[key: string]: GraphQuillConnection}
 ): IGraphQuillType & Klass {
-  wrappedClass.prototype = Object.assign(wrappedClass.prototype, {
+  return Object.assign(wrappedClass, {
     GraphQuill: nodeInterface => {
       const type = new GraphQLObjectType({
         name,
         description,
         fields: () => Object.assign({},
-          {id: idField && resolveById ? globalIdField(name) : undefined},
+          {id: idField && resolveById ?
+            globalIdField(name, obj => obj[idField]) : undefined},
           fieldMapping(fields, nodeInterface),
           connMapping(connections || {}, nodeInterface)
         ),
@@ -158,15 +159,13 @@ export function createType<Klass: Object>(
           []
         ),
       })
-      wrappedClass.prototype = Object.assign(wrappedClass.prototype, {
+      return Object.assign(wrappedClass, {
         GraphQLType: type,
         GraphQLConnectionType: idField && resolveById ?
-          connectionDefinitions({nodeType: type}).connectedType :
+          connectionDefinitions({ nodeType: type }).connectionType :
           undefined,
         resolveById,
       })
-      return wrappedClass
     },
   })
-  return wrappedClass
 }

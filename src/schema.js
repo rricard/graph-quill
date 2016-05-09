@@ -33,7 +33,7 @@ export function createSchema(
       return matches.length > 0 ?
         matches[0] :
         Promise.reject(new Error(`No matching Relay type for object`))
-    },
+    }
   )
   const expandedTypes = types.map(possibleType => {
     if(possibleType.GraphQuill && !possibleType.GraphQLType) {

@@ -31,6 +31,7 @@ Post = GraphQuill.createType(Post, {
   description: "An authored blog post",
   idField: "id",
   cursorField: "creationDate",
+  resolveById: id => posts.filter(p => p.id == id)[0],
 }, {
   title: {
     type: GraphQLString,
@@ -69,6 +70,7 @@ Author = GraphQuill.createType(Author, {
   name: "Author",
   description: "A creator of content",
   idField: "id",
+  resolveById: id => authors.filter(a => a.id == id)[0],
 }, {
   name: {
     type: GraphQLString,
