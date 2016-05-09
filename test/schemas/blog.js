@@ -99,7 +99,7 @@ const authors = [
 ]
 
 function me({userId}) {
-  return authors[userId]
+  return authors.filter(a => a.id == userId)[0]
 }
 
 me = GraphQuill.createRootQueryField(me, "me", {

@@ -2,6 +2,9 @@
 
 import {
   connectionFromPromisedArray,
+  connectionArgs,
+  backwardConnectionArgs,
+  forwardConnectionArgs,
 } from "graphql-relay"
 
 import type {
@@ -11,6 +14,7 @@ import type {
 import type {
   GraphQLArg,
   GraphQLField,
+  GraphQLResolveFunction,
 } from "./graphql"
 
 import type {
@@ -31,7 +35,8 @@ export type GraphQuillField = {
 export type GraphQuillConnection = {
   connectedType: GraphQuillClosuredAnyType,
   description?: string,
-  args?: {[key: string]: GraphQuillArg}
+  args?: {[key: string]: GraphQuillArg},
+  connectionDirection?: string
 }
 
 function argMapping(
@@ -57,7 +62,8 @@ function argMapping(
 
 export function fieldMapping(
   fields: {[key: string]: GraphQuillField},
-  nodeInterface: GraphQLInterfaceType
+  nodeInterface: GraphQLInterfaceType,
+  resolveOverride?: GraphQLResolveFunction
 ): {[key: string]: GraphQLField} {
   return Object.keys(fields).map(k => {
     const field = fields[k]
@@ -73,10 +79,10 @@ export function fieldMapping(
       type: type,
       description: field.description,
       args: field.args ? argMapping(field.args) : undefined,
-      resolve: (obj, args, context, info) =>
+      resolve: resolveOverride || ((obj, args, context, info) =>
         typeof obj[k] === "function" ?
           obj[k](args, context, info) :
-          obj[k],
+          obj[k]),
     }
     return kv
   }).reduce((obj, kv) => Object.assign(obj, kv), {})
@@ -84,7 +90,8 @@ export function fieldMapping(
 
 export function connMapping(
   fields: {[key: string]: GraphQuillConnection},
-  nodeInterface: GraphQLInterfaceType
+  nodeInterface: GraphQLInterfaceType,
+  resolveOverride?: GraphQLResolveFunction
 ): {[key: string]: GraphQLField} {
   return Object.keys(fields).map(k => {
     const field = fields[k]
@@ -99,10 +106,18 @@ export function connMapping(
     kv[k] = {
       type: connectedType,
       description: field.description,
-      args: field.args ? argMapping(field.args) : undefined,
+      args: Object.assign({},
+        !field.connectionDirection ?
+          connectionArgs :
+          (field.connectionDirection === "forward" ?
+            forwardConnectionArgs : backwardConnectionArgs),
+        field.args ? argMapping(field.args) : {}),
       resolve: (obj, args, context, info) =>
         connectionFromPromisedArray(Promise.resolve(
-          obj[k](args, context, info)
+          resolveOverride ? resolveOverride(obj, args, context, info) :
+          typeof obj[k] === "function" ?
+            obj[k](args, context, info) :
+            obj[k]
         ), args),
     }
     return kv

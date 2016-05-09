@@ -34,7 +34,8 @@ export function createRootQueryField(
   wrappedFunc.GraphQuill = nodeInterface => {
     let gQuillFields = {}
     gQuillFields[name] = opts
-    wrappedFunc.GraphQLFields = fieldMapping(gQuillFields, nodeInterface)
+    wrappedFunc.GraphQLFields = fieldMapping(gQuillFields, nodeInterface,
+      wrappedFunc)
     return wrappedFunc
   }
   return wrappedFunc
@@ -48,7 +49,8 @@ export function createRootQueryConnection(
   wrappedFunc.GraphQuill = nodeInterface => {
     let gQuillFields = {}
     gQuillFields[name] = opts
-    wrappedFunc.GraphQLFields = connMapping(gQuillFields, nodeInterface)
+    wrappedFunc.GraphQLFields = connMapping(gQuillFields, nodeInterface,
+      wrappedFunc)
     return wrappedFunc
   }
   return wrappedFunc

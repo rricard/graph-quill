@@ -15,3 +15,10 @@ export type GraphQLField = {
   args?: {[key: string]: GraphQLArg},
   resolve: (rootValue: mixed, args: {[key: string]: mixed}) => mixed,
 }
+
+export type GraphQLResolveFunction = (
+  obj?: mixed,
+  args?: {[key: string]: mixed},
+  context?: mixed,
+  info?: mixed
+) => mixed
