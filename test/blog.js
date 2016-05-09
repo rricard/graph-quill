@@ -31,6 +31,20 @@ describe("Blog Test Schema", () => {
     }
   `
 
+  const authorAndItsPostsFragemnt = `
+    fragment AuthorAndPosts on Author {
+      id
+      name
+      posts {
+        edges {
+          node {
+            title
+          }
+        }
+      }
+    }
+  `
+
   describe("node(id: ID!)", () => {
     const postRetrQuery = `
       ${postSummaryFragment}
@@ -43,11 +57,11 @@ describe("Blog Test Schema", () => {
     `
 
     const authorRetrQuery = `
-      ${authorSummaryFragment}
+      ${authorAndItsPostsFragemnt}
 
       query AuthorRetrievalQuery($id: ID!) {
         node(id: $id) {
-          ...AuthorSummary
+          ...AuthorAndPosts
         }
       }
     `
@@ -88,6 +102,11 @@ describe("Blog Test Schema", () => {
       node: {
         id: authorGlobalIds[0],
         name: "Anonymous",
+        posts: {
+          edges: [
+            { node: { title: "A post" } },
+          ],
+        },
       },
     }, {
       variableValues: {
@@ -99,6 +118,12 @@ describe("Blog Test Schema", () => {
       node: {
         id: authorGlobalIds[1],
         name: "Robin",
+        posts: {
+          edges: [
+            { node: { title: "My Post" } },
+            { node: { title: "My Second Post" } },
+          ],
+        },
       },
     }, {
       variableValues: {

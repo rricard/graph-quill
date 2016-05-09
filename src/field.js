@@ -93,7 +93,7 @@ export function connMapping(
       !field.connectedType.GraphQuill ?
       field.connectedType() :
       field.connectedType
-    const connectedType = baseConnectedType.GraphQLType ||
+    const connectedType = baseConnectedType.GraphQLConnectionType ||
       baseConnectedType.GraphQuill(nodeInterface).GraphQLConnectionType
     let kv = {}
     kv[k] = {
