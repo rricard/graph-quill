@@ -6,20 +6,23 @@ import {
 
 import GraphQuill from "../../src"
 
-class BlogItem {
-  constructor(fields?: {[key: string]: mixed}) {
-    if(fields) {
-      Object.assign(this, fields)
-    }
-  }
-}
+class Post {
+  id: number;
+  authorId: number;
+  title: string;
+  content: string;
+  creationDate: Date;
 
-class Post extends BlogItem {
-  id: number = 0;
-  authorId: number = 0;
-  title: string = "A post";
-  content: string = "Hello world!";
-  creationDate: Date = new Date();
+  constructor(
+    id=0, authorId=0, title="A post", content="Hello world!",
+    creationDate=new Date()
+  ) {
+    this.id = id
+    this.authorId = authorId
+    this.title = title
+    this.content = content
+    this.creationDate = creationDate
+  }
 
   author() {
     return authors.filter(a => a.id == this.authorId)[0]
@@ -31,7 +34,9 @@ Post = GraphQuill.createType(Post, {
   description: "An authored blog post",
   idField: "id",
   cursorField: "creationDate",
-  resolveById: id => posts.filter(p => p.id == id)[0],
+  resolveById: id => {
+    return posts.filter(p => p.id == id)[0]
+  },
 }, {
   title: {
     type: GraphQLString,
@@ -53,13 +58,18 @@ Post = GraphQuill.createType(Post, {
 
 const posts = [
   new Post(),
-  new Post({id: 1, authorId: 1, title: "My Post", content: "Robin's post!"}),
-  new Post({id: 2, authorId: 1, title: "My Second Post", content: "Wow!"}),
+  new Post(1, 1, "My Post", "Robin's post!"),
+  new Post(2, 1, "My Second Post", "Wow!"),
 ]
 
-class Author extends BlogItem {
-  id: number = 0;
-  name: string = "Anonymous";
+class Author {
+  id: number;
+  name: string;
+
+  constructor(id=0, name="Anonymous") {
+    this.id = id
+    this.name = name
+  }
 
   posts() {
     return posts.filter(p => p.authorId == this.id)
@@ -85,7 +95,7 @@ Author = GraphQuill.createType(Author, {
 
 const authors = [
   new Author(),
-  new Author({id: 1, name: "Robin"}),
+  new Author(1, "Robin"),
 ]
 
 function me({userId}) {
