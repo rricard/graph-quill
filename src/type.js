@@ -20,16 +20,12 @@ import type {
   GraphQLField,
 } from "./graphql"
 
-/* global IRelayEnhancedType */
-interface IRelayEnhancedType {
-  GraphQLType: GraphQLType,
-  GraphQLConnectionType?: GraphQLType,
-  resolveById?: (id: mixed) => mixed
-}
-
 /* global IGraphQuillType */
 export interface IGraphQuillType {
-  GraphQuill: (nodeInterface: GraphQLInterfaceType) => IRelayEnhancedType;
+  GraphQuill: (nodeInterface: GraphQLInterfaceType) => IGraphQuillType,
+  GraphQLType?: GraphQLType,
+  GraphQLConnectionType?: GraphQLType,
+  resolveById?: (id: mixed) => mixed,
 }
 
 export type GraphQuillAnyType = GraphQLType | IGraphQuillType
