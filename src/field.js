@@ -62,7 +62,7 @@ export function fieldMapping(
   return Object.keys(fields).map(k => {
     const field = fields[k]
     const baseType =
-      typeof field.type === "function" && !field.type.prototype ?
+      typeof field.type === "function" && !field.type.GraphQuill ?
       field.type() :
       field.type
     const type = baseType.GraphQuill ?
@@ -88,7 +88,7 @@ export function connMapping(
     const field = fields[k]
     const baseConnectedType =
       typeof field.connectedType === "function" &&
-      !field.connectedType.prototype ?
+      !field.connectedType.GraphQuill ?
       field.connectedType() :
       field.connectedType
     const connectedType = baseConnectedType.GraphQLType ||

@@ -34,15 +34,15 @@ Post = GraphQuill.createType(Post, {
   resolveById: id => posts.filter(p => p.id == id)[0],
 }, {
   title: {
-    type: GraphQLString,
+    type: () => GraphQLString,
     description: "Post's title",
   },
   content: {
-    type: GraphQLString,
+    type: () => GraphQLString,
     description: "Post's markdown contents",
   },
   creationDate: {
-    type: GraphQLString,
+    type: () => GraphQLString,
     description: "Post's creation date",
   },
   author: {
@@ -73,7 +73,7 @@ Author = GraphQuill.createType(Author, {
   resolveById: id => authors.filter(a => a.id == id)[0],
 }, {
   name: {
-    type: GraphQLString,
+    type: () => GraphQLString,
     description: "Author's name",
   },
 }, {
@@ -92,8 +92,7 @@ function me({userId}) {
   return authors[userId]
 }
 
-me = GraphQuill.createRootQueryField(me, {
-  name: "me",
+me = GraphQuill.createRootQueryField(me, "me", {
   description: "Get the currently connected user",
   type: () => Author,
 })
@@ -102,8 +101,7 @@ function allPosts() {
   return posts
 }
 
-allPosts = GraphQuill.createRootQueryConnection(allPosts, {
-  name: "allPosts",
+allPosts = GraphQuill.createRootQueryConnection(allPosts, "allPosts", {
   description: "Get all of the connected posts",
   connectedType: () => Post,
 })
@@ -111,4 +109,7 @@ allPosts = GraphQuill.createRootQueryConnection(allPosts, {
 export default GraphQuill.createSchema([
   Post,
   Author,
+], [
+  me,
+  allPosts,
 ])

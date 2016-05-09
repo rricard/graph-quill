@@ -15,7 +15,8 @@ import type {
 } from "./type"
 
 export function createSchema(
-  types: Array<IGraphQuillType>
+  types: Array<IGraphQuillType>,
+  rootQueriesAndConns: Array<IGraphQuillRootQuery>
 ): GraphQLSchema {
   const {nodeInterface, nodeField} = nodeDefinitions(
     globalId => {
@@ -44,12 +45,19 @@ export function createSchema(
       throw new Error("Non-GraphQuill-annotated class")
     }
   })
+  const expandedRootQueries = rootQueriesAndConns.map(possibleRootQuery => {
+    if(possibleRootQuery.GraphQuill && !possibleRootQuery.GraphQLFields) {
+      return possibleRootQuery.GraphQuill(nodeInterface)
+    } else {
+      throw new Error("Non-GraphQuill-annotated root query")
+    }
+  })
   const queryType = new GraphQLObjectType({
     name: "Query",
     description: "Root Query: Graph Entry Point",
-    fields: () => ({
+    fields: () => Object.assign({
       node: nodeField,
-    }),
+    }, ...expandedRootQueries.map(exp => exp.GraphQLField)),
   })
   return new GraphQLSchema({
     query: queryType,

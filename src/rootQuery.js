@@ -1,37 +1,55 @@
 /* @flow */
 
 import type {
-  GraphQuillClosuredAnyType,
-  GraphQuillArg,
-} from "./type"
+  GraphQLInterfaceType,
+} from "graphql"
+
+import {
+  fieldMapping,
+  connMapping,
+} from "./field"
+
+import type {
+  GraphQuillField,
+  GraphQuillConnection,
+} from "./field"
 
 
-export type GraphQuillFieldWithName = {
-  name: string,
-  type: GraphQuillClosuredAnyType,
-  description?: string,
-  args?: {[key: string]: GraphQuillArg}
-}
+import type {
+  GraphQLField,
+} from "./graphql"
 
-export type GraphQuillConnectionWithName = {
-  name: string,
-  connectedType: GraphQuillClosuredAnyType,
-  description?: string,
-  args?: {[key: string]: GraphQuillArg}
+
+/* global IGraphQuillRootQuery */
+export interface IGraphQuillRootQuery {
+  GraphQuill: (nodeInterface: GraphQLInterfaceType) => IGraphQuillRootQuery,
+  GraphQLFields?: {[key: string]: GraphQLField},
 }
 
 export function createRootQueryField(
   wrappedFunc: Function,
-  opts: GraphQuillFieldWithName
+  name: string,
+  opts: GraphQuillField
 ): Function {
-  wrappedFunc.GraphQLFields = opts
+  wrappedFunc.GraphQuill = nodeInterface => {
+    let gQuillFields = {}
+    gQuillFields[name] = opts
+    wrappedFunc.GraphQLFields = fieldMapping(gQuillFields, nodeInterface)
+    return wrappedFunc
+  }
   return wrappedFunc
 }
 
 export function createRootQueryConnection(
   wrappedFunc: Function,
-  opts: GraphQuillConnectionWithName
+  name: string,
+  opts: GraphQuillConnection
 ): Function {
-  wrappedFunc.GraphQLFields = opts
+  wrappedFunc.GraphQuill = nodeInterface => {
+    let gQuillFields = {}
+    gQuillFields[name] = opts
+    wrappedFunc.GraphQLFields = connMapping(gQuillFields, nodeInterface)
+    return wrappedFunc
+  }
   return wrappedFunc
 }
