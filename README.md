@@ -7,183 +7,72 @@ GraphQL Schema creation Sugar
 ---
 
 GraphQuill is a tool based on the [GraphQL reference implementation][graphql-js]
-which goal is to help write [GraphQL][graphql] servers compliant with the
+and the [Relay GraphQL supporting Library][graphql-relay-js] which goal is to
+help write [GraphQL][graphql] servers compliant with the
 [GraphQL Relay Specification][graphql-relay-spec].
 
 [graphql]: http://graphql.org
 [graphql-js]: https://github.com/graphql/graphql-js
+[graphql-relay-js]: https://github.com/graphql/graphql-relay-js
 [graphql-relay-spec]: https://facebook.github.io/relay/docs/graphql-relay-specification.html
 
-## Features
+## Example
 
-### Class and function-level type registration
+As seen in the [tested example][blog-schema], you can "wrap" any class like
+you would
+[add a container around a React component in Relay][relay-container]:
 
-Annotate your class in order to generate GraphQL types. The resolve mechanism,
-your implementation, is central with GraphQuill and you won't spend time gluing
-your schema to the actual logic.
+```javascript
+import GraphQuill from "graph-quill"
 
-```js
-import {
-  QuillType,
-  QuillRootQuery,
-  QuillMutation,
-  QuillField,
-  QuillIdField,
-  QuillConnectionField,
-} from "graph-quill";
-
-import {
-  GraphQLString
-} from "graphql";
-
-import Article from "./Article";
-
-@QuillType({
-  name: "Article",
-  description: "An user able to write articles"
-})
-export default class Author extends SomeORM.Model {
-  @GraphQLIdField
-  id() {
-    return this.id;
-  }
-
-  @GraphQLField({
-    name: "name",
-    description: "Author's signing name",
-    type: GraphQLString
-  })
-  name() {
-    return this.firstName + ' ' + this.lastName;
-  }
-
-  @QuillConnectionField({
-    name: "articles",
-    description: "Author's articles",
-    connectedType: Article.QuillType
-  })
-  articles() {
-    return Article.find({author: this.id});
-  }
+class Post {
+  // ...
 }
 
-@QuillRootQuery({
-  name: "me",
-  description: "Gets the current user's author profile",
-  type: Author.QuillType
-})
-export function me({session}) {
-  return Author.find({id: session.userId});
+function allPosts() {
+  // ...
 }
 
-@QuillRootQuery({
-  name: "search",
-  description: "Search for an author by its name",
-  args: {
-    name: {
-      "description": "Author's full name",
-      "type": GraphQLString
-    }
+Post = GraphQuill.createType(Post, {
+  name: "Post",
+  description: "An authored blog post",
+  idField: "id",
+  cursorField: "creationDate",
+  resolveById: id => {
+    // ...
   },
-  type: Author.QuillType
-})
-export function search(_, {name}) {
-  const [firstName, lastName] = name.split(' ');
-  return Author.findAll({firstName, lastName});
-}
-
-@QuillMutation({
-  name: "createAuthor",
-  description: "Creates a new author",
-  fields: {
-    name: {
-      "description": "Author's full name",
-      "type": GraphQLString
-    }
+}, {
+  title: {
+    type: GraphQLString,
+    description: "Post's title",
   },
-  type: Author.QuillType
+  content: {
+    type: GraphQLString,
+    description: "Post's markdown contents",
+  },
+  creationDate: {
+    type: GraphQLString,
+    description: "Post's creation date",
+  }
 })
-export function createAuthor(_, {name}) {
-  const [firstName, lastName] = name.split(' ');
-  return new Author({firstName, lastName}).save();
-}
+
+allPosts = GraphQuill.createRootQueryConnection(allPosts, "allPosts", {
+  description: "Get all of the connected posts",
+  connectedType: () => Post,
+})
+
+export default GraphQuill.createSchema([
+  Post,
+], [
+  allPosts,
+])
 ```
 
-### Automatic annotation
+In the end, you just end up combining your wrapped types and root queries into
+a usable GraphQL Schema.
 
-Most of the information GraphQuill can get is already there if you use
-[Flow][flowtype] and correctly comment your files. Using [Babel][babeljs],
-we can setup for you the annotations by correctly setting description and types.
-
-```js
-@QuillType
-// An user able to write articles
-export default class Author extends SomeORM.Model {
-  @GraphQLIdField
-  id(): string {
-    return this.id;
-  }
-
-  @GraphQLField
-  // Author's signing name
-  name(): string {
-    return this.firstName + ' ' + this.lastName;
-  }
-
-  @QuillConnectionField
-  // Author's articles
-  articles(): Promise<Article> {
-    return Article.find({author: this.id});
-  }
-}
-
-@QuillRootQuery
-// Gets the current user's author profile
-export function me({session}: any): Promise<Author> {
-  return Author.find({id: session.userId});
-}
-
-@QuillRootQuery
-// Search for an author by its name
-//
-// - name: Author's full name
-export function search({}: any, {name}: {name: string}): Promise<Author> {
-  const [firstName, lastName] = name.split(' ');
-  return Author.find({firstName, lastName});
-}
-
-@QuillMutation
-// Creates a new author
-//
-// - name: Author's full name
-export function createAuthor({}: any, {name}: {name: string}): Promise<Author> {
-  const [firstName, lastName] = name.split(' ');
-  return new Author({firstName, lastName}).save();
-}
-```
-
-[flowtype]: http://flowtype.org
-[babeljs]: https://babeljs.io
-
-### Simple registration
-
-We provide an easy way to generate your GraphQL schema:
-
-```js
-import GraphQuill from "graph-quill";
-
-import Author, {me, createAuthor} from "./models/Author";
-import Article from "./models/Author";
-
-const schema = GraphQuill.register([
-  Author,
-  Article,
-  me,
-  createAuthor
-]);
-
-export default schema;
-```
+[blog-schema]: ./test/schemas/blog.js
+[relay-container]: https://facebook.github.io/relay/docs/guides-containers.html
 
 ## Installation
 
@@ -193,42 +82,12 @@ The core GraphQuill package can be easily installed with the following command:
 npm install --save graph-quill
 ```
 
-### Automatic annotation babel plugin
+## Roadmap
 
-If you want to leverage the automatic annotation system, you can install the
-plugin if you ensure that the [decorator transform][decorator-babel] and the
-[flow syntax][flow-babel] plugins are already active:
-
-```
-npm install --save-dev babel-plugin-graph-quill
-```
-
-**`.babelrc`**
-```json
-{
-  ...
-  "plugins": [
-    ...
-    "graph-quill"
-  ]
-}
-```
-
-Or you can use a preset ready for GraphQuill directly:
-
-```
-npm install --save-dev babel-preset-graph-quill
-```
-
-**`.babelrc`**
-```json
-{
-  "presets": ["graph-quill"]
-}
-```
-
-[decorator-babel]: http://babeljs.io/docs/plugins/transform-decorators/
-[flow-babel]: http://babeljs.io/docs/plugins/syntax-flow/
+- **GraphQL mutations** - Coming soon
+- **More control over the relay layer** - API design work needed
+- **Babel plugin for parsing comments & flow annotations** for automatic graphql
+schema inference
 
 ## Contributing
 
@@ -241,6 +100,15 @@ accepted, create an issue to discuss it.
 
 Bug reports are welcome if you provide clear context information and steps to
 reproduce.
+
+Bug fixes are always welcome!
+
+The CI servers will ensure correct typechecking as well as passing tests and
+linted code. Make sure it works on your side too using:
+
+- `npm run typecheck`
+- `npm test`
+- `npm run lint`
 
 ## Author
 
