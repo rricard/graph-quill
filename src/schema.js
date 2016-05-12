@@ -18,9 +18,14 @@ import type {
   IGraphQuillRootQuery,
 } from "./rootQuery"
 
+import type {
+  IGraphQuillMutation,
+} from "./mutation"
+
 export function createSchema(
   types: Array<IGraphQuillType>,
-  rootQueriesAndConns: Array<IGraphQuillRootQuery>
+  rootQueriesAndConns: Array<IGraphQuillRootQuery>,
+  mutations?:Array<IGraphQuillMutation>
 ): GraphQLSchema {
   const {nodeInterface, nodeField} = nodeDefinitions(
     globalId => {
@@ -63,7 +68,27 @@ export function createSchema(
       node: nodeField,
     }, ...expandedRootQueries.map(exp => exp.GraphQLFields)),
   })
+  let mutationType = undefined
+  if(mutations) {
+    const expandedMutations = mutations.map(possibleMutation => {
+      if(possibleMutation.GraphQuill && !possibleMutation.GraphQLMutation) {
+        return possibleMutation.GraphQuill(nodeInterface)
+      } else if(possibleMutation.GraphQLMutations) {
+        return possibleMutation
+      } else {
+        throw new Error("Non-GraphQuill-annotated mutation")
+      }
+    })
+    mutationType = new GraphQLObjectType({
+      name: "Mutation",
+      description: "Root Mutation: Mutation Graph Entry Point",
+      fields: () => Object.assign({
+        node: nodeField,
+      }, ...expandedMutations.map(exp => exp.GraphQLMutations)),
+    })
+  }
   return new GraphQLSchema({
     query: queryType,
+    mutations: mutationType,
   })
 }

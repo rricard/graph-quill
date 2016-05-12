@@ -39,7 +39,7 @@ export type GraphQuillConnection = {
   connectionDirection?: string
 }
 
-function argMapping(
+export function argMapping(
   args: {[key: string]: GraphQuillArg},
   nodeInterface: GraphQLInterfaceType
 ): {[key: string]: GraphQLArg} {
