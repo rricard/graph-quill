@@ -47,14 +47,15 @@ export function createMutation(
 ): IGraphQuillMutation {
   wrappedFunc.GraphQuill = nodeInterface => {
     wrappedFunc.GraphQLMutations = {}
+    const outFieldsList = [].concat(
+      fieldMapping(fields, nodeInterface),
+      (connections && connMapping(connections, nodeInterface)) || []
+    )
     wrappedFunc.GraphQLMutations[name] = mutationWithClientMutationId({
       name: name.slice(0,1).toUpperCase() + name.slice(1),
       description: description,
       inputFields: argMapping(args, nodeInterface),
-      outputField: [].concat(
-        fieldMapping(fields, nodeInterface),
-        (connections && connMapping(connections, nodeInterface)) || []
-      ),
+      outputFields: Object.assign({}, ...outFieldsList),
       mutateAndGetPayload: wrappedFunc,
     })
     return wrappedFunc

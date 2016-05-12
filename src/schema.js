@@ -25,7 +25,7 @@ import type {
 export function createSchema(
   types: Array<IGraphQuillType>,
   rootQueriesAndConns: Array<IGraphQuillRootQuery>,
-  mutations?:Array<IGraphQuillMutation>
+  mutations?: Array<IGraphQuillMutation>
 ): GraphQLSchema {
   const {nodeInterface, nodeField} = nodeDefinitions(
     globalId => {
@@ -89,6 +89,6 @@ export function createSchema(
   }
   return new GraphQLSchema({
     query: queryType,
-    mutations: mutationType,
+    mutation: mutationType,
   })
 }
