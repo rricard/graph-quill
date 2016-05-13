@@ -25,11 +25,8 @@ you would
 ```javascript
 import GraphQuill from "graph-quill"
 
+// Wrap Types
 class Post {
-  // ...
-}
-
-function allPosts() {
   // ...
 }
 
@@ -56,15 +53,56 @@ Post = GraphQuill.createType(Post, {
   }
 })
 
+// Wrap Root Queries
+function allPosts() {
+  // ...
+}
+
 allPosts = GraphQuill.createRootQueryConnection(allPosts, "allPosts", {
   description: "Get all of the connected posts",
   connectedType: () => Post,
 })
 
+// Wrap Mutations
+function newPost({title, content}, _, {rootValue: {userId}}) {
+  // ...
+  return {
+    newPost: newPost,
+    allPosts: allPosts(),
+  }
+}
+
+newPost = GraphQuill.createMutation(newPost, {
+  name: "newPost",
+  description: "Creates a new post from the current user",
+}, {
+  title: {
+    type: new GraphQLNonNull(GraphQLString),
+    description: "The new post's title",
+  },
+  content: {
+    type: new GraphQLNonNull(GraphQLString),
+    description: "The new post's content",
+  },
+}, {
+  newPost: {
+    type: () => Post,
+    description: "The freshly created post",
+  },
+}, {
+  allPosts: {
+    connectedType: () => Post,
+    description: "All of the posts including the new one",
+  },
+})
+
+// Register in one schema
 export default GraphQuill.createSchema([
   Post,
 ], [
   allPosts,
+], [
+  newPost
 ])
 ```
 
@@ -84,7 +122,6 @@ npm install --save graph-quill
 
 ## Roadmap
 
-- **GraphQL mutations** - Coming soon
 - **More control over the relay layer** - API design work needed
 - **Babel plugin for parsing comments & flow annotations** for automatic graphql
 schema inference
