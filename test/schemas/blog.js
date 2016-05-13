@@ -2,6 +2,7 @@
 
 import {
   GraphQLString,
+  GraphQLNonNull,
 } from "graphql"
 
 import GraphQuill from "../../src"
@@ -56,7 +57,7 @@ Post = GraphQuill.createType(Post, {
   },
 })
 
-const posts = [
+let posts = [
   new Post(),
   new Post(1, 1, "My Post", "Robin's post!"),
   new Post(2, 1, "My Second Post", "Wow!"),
@@ -116,10 +117,45 @@ allPosts = GraphQuill.createRootQueryConnection(allPosts, "allPosts", {
   connectedType: () => Post,
 })
 
+function newPost({title, content}, _, {rootValue: {userId}}) {
+  const np = new Post(posts.length, userId, title, content, new Date())
+  posts.push(np)
+  return {
+    newPost: np,
+    allPosts: posts,
+  }
+}
+
+newPost = GraphQuill.createMutation(newPost, {
+  name: "newPost",
+  description: "Creates a new post from the current user",
+}, {
+  title: {
+    type: new GraphQLNonNull(GraphQLString),
+    description: "The new post's title",
+  },
+  content: {
+    type: new GraphQLNonNull(GraphQLString),
+    description: "The new post's content",
+  },
+}, {
+  newPost: {
+    type: () => Post,
+    description: "The freshly created post",
+  },
+}, {
+  allPosts: {
+    connectedType: () => Post,
+    description: "All of the posts including the new one",
+  },
+})
+
 export default GraphQuill.createSchema([
   Post,
   Author,
 ], [
   me,
   allPosts,
+], [
+  newPost,
 ])

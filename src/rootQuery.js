@@ -30,7 +30,7 @@ export function createRootQueryField(
   wrappedFunc: Function,
   name: string,
   opts: GraphQuillField
-): Function {
+): IGraphQuillRootQuery {
   wrappedFunc.GraphQuill = nodeInterface => {
     let gQuillFields = {}
     gQuillFields[name] = opts
@@ -45,7 +45,7 @@ export function createRootQueryConnection(
   wrappedFunc: Function,
   name: string,
   opts: GraphQuillConnection
-): Function {
+): IGraphQuillRootQuery {
   wrappedFunc.GraphQuill = nodeInterface => {
     let gQuillFields = {}
     gQuillFields[name] = opts

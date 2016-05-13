@@ -47,7 +47,7 @@ describe("Blog Test Schema", () => {
     }
   `
 
-  describe("me", () => {
+  describe("query me", () => {
     const getMeAndMyPosts = `
       ${authorAndItsPostsFragement}
 
@@ -72,7 +72,7 @@ describe("Blog Test Schema", () => {
     }))
   })
 
-  describe("allPosts", () => {
+  describe("query allPosts", () => {
     const allPaginatedQuery = `
       ${postSummaryFragment}
 
@@ -117,7 +117,7 @@ describe("Blog Test Schema", () => {
     }))
   })
 
-  describe("node(id: ID!)", () => {
+  describe("query node(id: ID!)", () => {
     const postRetrQuery = `
       ${postSummaryFragment}
 
@@ -200,6 +200,81 @@ describe("Blog Test Schema", () => {
     }, {
       variableValues: {
         id: authorGlobalIds[1],
+      },
+    }))
+  })
+
+  describe("mutation newPost", () => {
+    it("should create the new post", () => assertBlog(`
+      ${postSummaryFragment}
+
+      mutation CreateNewPost(
+        $mutationId: String!,
+        $title: String!,
+        $content: String!
+      ) {
+        newPost(input: {
+          clientMutationId: $mutationId,
+          title: $title,
+          content: $content
+        }) {
+          clientMutationId
+          newPost {
+            ...PostSummary
+          }
+          allPosts(last: 2) {
+            edges {
+              node {
+                ...PostSummary
+              }
+            }
+          }
+        }
+      }
+    `, {
+      "newPost": {
+        "clientMutationId": "1",
+        "newPost": {
+          "id": "UG9zdDoz",
+          "title": "A mutation-issued post",
+          "content": "Look at this! Awesome!",
+          "author": {
+            "id": "QXV0aG9yOjE=",
+            "name": "Robin",
+          },
+        },
+        "allPosts": {
+          "edges": [
+            {
+              "node": {
+                "id": "UG9zdDoy",
+                "title": "My Second Post",
+                "content": "Wow!",
+                "author": {
+                  "id": "QXV0aG9yOjE=",
+                  "name": "Robin",
+                },
+              },
+            },
+            {
+              "node": {
+                "id": "UG9zdDoz",
+                "title": "A mutation-issued post",
+                "content": "Look at this! Awesome!",
+                "author": {
+                  "id": "QXV0aG9yOjE=",
+                  "name": "Robin",
+                },
+              },
+            },
+          ],
+        },
+      },
+    }, {
+      variableValues: {
+        mutationId: "1",
+        title: "A mutation-issued post",
+        content: "Look at this! Awesome!",
       },
     }))
   })
