@@ -2,7 +2,7 @@
 
 GraphQL Schema creation Sugar
 
-[![Build Status](https://travis-ci.org/rricard/graph-quill.svg?branch=master)](https://travis-ci.org/rricard/graph-quill) [![Code Climate](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/gpa.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/feed) [![Test Coverage](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/coverage.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/coverage) [![Issue Count](https://codeclimate.com/repos/572c83a95d6d1f7229001686/badges/b2777c3f81c698242d28/issue_count.svg)](https://codeclimate.com/repos/572c83a95d6d1f7229001686/feed)
+[![Build Status](https://travis-ci.org/rricard/graph-quill.svg?branch=master)](https://travis-ci.org/rricard/graph-quill) [![Code Climate](https://codeclimate.com/github/rricard/graph-quill/badges/gpa.svg)](https://codeclimate.com/github/rricard/graph-quill) [![Issue Count](https://codeclimate.com/github/rricard/graph-quill/badges/issue_count.svg)](https://codeclimate.com/github/rricard/graph-quill)
 
 ---
 
