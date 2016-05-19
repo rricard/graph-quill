@@ -63,8 +63,8 @@ export function createType<Klass: Object>(
         name,
         description,
         fields: () => Object.assign({},
-          {id: idField && resolveById ?
-            globalIdField(name, obj => obj[idField]) : undefined},
+          idField && resolveById ?
+            {id: globalIdField(name, obj => obj[idField]) } : {},
           fieldMapping(fields, nodeInterface),
           connMapping(connections || {}, nodeInterface)
         ),
